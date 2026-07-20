@@ -165,7 +165,7 @@ export function BuildForm({
         <input
           type="file"
           name="photos"
-          accept="image/*"
+          accept="image/*,.heic,.heif"
           multiple
           className="w-full border border-navy/20 px-3 py-2 text-navy file:mr-4 file:border-0 file:bg-navy file:text-cream file:px-4 file:py-2 file:uppercase file:text-xs file:font-semibold"
         />

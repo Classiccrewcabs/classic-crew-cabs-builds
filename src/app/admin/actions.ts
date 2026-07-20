@@ -2,9 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import heicConvert from "heic-convert";
 import { createClient } from "@/lib/supabase/server";
 import { makeBuildSlug } from "@/lib/slug";
 import type { BuildStatus } from "@/lib/types";
+
+function isHeic(file: File) {
+  return (
+    /image\/hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name)
+  );
+}
 
 function readBuildFields(formData: FormData) {
   return {
@@ -41,12 +48,27 @@ async function uploadPhotos(
     const file = files[i];
     if (!file || file.size === 0) continue;
 
-    const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+    let body: File | Buffer = file;
+    let contentType = file.type || "image/jpeg";
+    let safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+
+    if (isHeic(file)) {
+      const inputBuffer = Buffer.from(await file.arrayBuffer());
+      const outputBuffer = await heicConvert({
+        buffer: inputBuffer,
+        format: "JPEG",
+        quality: 0.9,
+      });
+      body = Buffer.from(outputBuffer);
+      contentType = "image/jpeg";
+      safeName = safeName.replace(/\.hei[cf]$/i, "") + ".jpg";
+    }
+
     const path = `${buildId}/${Date.now()}-${i}-${safeName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("build-photos")
-      .upload(path, file, { contentType: file.type });
+      .upload(path, body, { contentType });
 
     if (uploadError) throw uploadError;
 

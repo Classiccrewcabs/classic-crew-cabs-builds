@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import type { BuildWithImages } from "@/lib/types";
 
+export { buildImageUrl } from "@/lib/image-url";
+
 export async function getBuilds(): Promise<BuildWithImages[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -38,9 +40,4 @@ export async function getBuildBySlug(
       (a, b) => a.sort_order - b.sort_order
     ),
   };
-}
-
-export function buildImageUrl(storagePath: string): string {
-  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  return `${base}/storage/v1/object/public/build-photos/${storagePath}`;
 }

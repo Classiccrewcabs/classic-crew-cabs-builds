@@ -1,5 +1,6 @@
 export type BuildStatus = "available" | "sold" | "featured";
 export type BuildCategory = "for_sale" | "past_build";
+export type PhotoCategory = "exterior" | "interior" | "detail";
 
 export type Build = {
   id: string;
@@ -31,6 +32,7 @@ export type BuildImage = {
   build_id: string;
   storage_path: string;
   sort_order: number;
+  photo_category: PhotoCategory;
   created_at: string;
 };
 

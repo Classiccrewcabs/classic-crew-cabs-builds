@@ -4,7 +4,13 @@ import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
 import { buildImageUrl } from "@/lib/image-url";
-import type { Build, BuildImage } from "@/lib/types";
+import type { Build, BuildImage, PhotoCategory } from "@/lib/types";
+
+const PHOTO_CATEGORY_GROUPS: { key: PhotoCategory; label: string }[] = [
+  { key: "exterior", label: "Exterior" },
+  { key: "interior", label: "Interior" },
+  { key: "detail", label: "Detail" },
+];
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -192,61 +198,73 @@ export function BuildForm({
         </div>
       </div>
 
-      {existingImages && existingImages.length > 0 && (
-        <div>
-          <p className="text-xs uppercase tracking-wide text-navy/60 mb-2">
-            Current Photos &mdash; select the lead photo, check any to remove
-          </p>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-            {existingImages.map((image) => (
-              <div key={image.id} className="space-y-1">
-                <div className="relative aspect-square bg-white border border-navy/10">
-                  <Image
-                    src={buildImageUrl(image.storage_path)}
-                    alt=""
-                    fill
-                    className="object-contain"
-                    sizes="120px"
-                  />
-                </div>
-                <label className="flex items-center justify-center gap-1 text-[0.65rem] uppercase tracking-wide text-navy/70">
-                  <input
-                    type="radio"
-                    name="cover_image_id"
-                    value={image.id}
-                    defaultChecked={build?.cover_image_id === image.id}
-                    className="accent-red"
-                  />
-                  Lead Photo
-                </label>
-                <label className="flex items-center justify-center gap-1 text-[0.65rem] uppercase tracking-wide text-red">
-                  <input
-                    type="checkbox"
-                    name="delete_image"
-                    value={image.id}
-                    className="accent-red"
-                  />
-                  Remove
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div>
-        <label className="block text-xs uppercase tracking-wide text-navy/60 mb-1">
-          {existingImages && existingImages.length > 0
-            ? "Add More Photos"
-            : "Photos (up to 10) — first photo uploaded becomes the lead photo"}
-        </label>
-        <input
-          type="file"
-          name="photos"
-          accept="image/*"
-          multiple
-          className="w-full border border-navy/20 px-3 py-2 text-navy file:mr-4 file:border-0 file:bg-navy file:text-cream file:px-4 file:py-2 file:uppercase file:text-xs file:font-semibold"
-        />
+        <h2 className="text-xs font-bold uppercase tracking-wide text-navy/40 mb-3">
+          Photos
+        </h2>
+        <p className="text-xs text-navy/50 mb-4">
+          The lead photo (marked below, or the first Exterior photo you
+          upload) is used both on the listing card and as the opening photo
+          on the detail page.
+        </p>
+
+        {PHOTO_CATEGORY_GROUPS.map(({ key, label }) => {
+          const images = existingImages?.filter(
+            (img) => img.photo_category === key
+          );
+          return (
+            <div key={key} className="mb-6">
+              <p className="text-xs uppercase tracking-wide text-navy/60 mb-2">
+                {label} Photos
+              </p>
+
+              {images && images.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mb-3">
+                  {images.map((image) => (
+                    <div key={image.id} className="space-y-1">
+                      <div className="relative aspect-square bg-white border border-navy/10">
+                        <Image
+                          src={buildImageUrl(image.storage_path)}
+                          alt=""
+                          fill
+                          className="object-contain"
+                          sizes="120px"
+                        />
+                      </div>
+                      <label className="flex items-center justify-center gap-1 text-[0.65rem] uppercase tracking-wide text-navy/70">
+                        <input
+                          type="radio"
+                          name="cover_image_id"
+                          value={image.id}
+                          defaultChecked={build?.cover_image_id === image.id}
+                          className="accent-red"
+                        />
+                        Lead Photo
+                      </label>
+                      <label className="flex items-center justify-center gap-1 text-[0.65rem] uppercase tracking-wide text-red">
+                        <input
+                          type="checkbox"
+                          name="delete_image"
+                          value={image.id}
+                          className="accent-red"
+                        />
+                        Remove
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <input
+                type="file"
+                name={`photos_${key}`}
+                accept="image/*"
+                multiple
+                className="w-full border border-navy/20 px-3 py-2 text-navy file:mr-4 file:border-0 file:bg-navy file:text-cream file:px-4 file:py-2 file:uppercase file:text-xs file:font-semibold"
+              />
+            </div>
+          );
+        })}
       </div>
 
       <SubmitButton label={submitLabel} />

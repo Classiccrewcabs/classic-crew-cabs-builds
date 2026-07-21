@@ -5,9 +5,10 @@ import { redirect } from "next/navigation";
 import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { makeBuildSlug } from "@/lib/slug";
-import type { BuildCategory, BuildStatus } from "@/lib/types";
+import type { BuildCategory, BuildStatus, PhotoCategory } from "@/lib/types";
 
 const MAX_DIMENSION = 2400;
+const PHOTO_CATEGORIES: PhotoCategory[] = ["exterior", "interior", "detail"];
 
 async function processImage(file: File): Promise<Buffer> {
   const source = Buffer.from(await file.arrayBuffer());
@@ -69,7 +70,8 @@ function readBuildFields(formData: FormData) {
 async function uploadPhotos(
   buildId: string,
   files: File[],
-  startingSortOrder: number
+  startingSortOrder: number,
+  photoCategory: PhotoCategory
 ) {
   const supabase = await createClient();
   const inserted: { id: string; sort_order: number }[] = [];
@@ -96,12 +98,31 @@ async function uploadPhotos(
         build_id: buildId,
         storage_path: path,
         sort_order: startingSortOrder + i,
+        photo_category: photoCategory,
       })
       .select("id, sort_order")
       .single();
 
     if (insertError) throw insertError;
     inserted.push(image);
+  }
+
+  return inserted;
+}
+
+async function uploadAllCategories(
+  buildId: string,
+  formData: FormData,
+  startingSortOrder: number
+) {
+  let sortOrder = startingSortOrder;
+  const inserted: { id: string; sort_order: number }[] = [];
+
+  for (const category of PHOTO_CATEGORIES) {
+    const files = formData.getAll(`photos_${category}`) as File[];
+    const result = await uploadPhotos(buildId, files, sortOrder, category);
+    sortOrder += result.length;
+    inserted.push(...result);
   }
 
   return inserted;
@@ -120,8 +141,7 @@ export async function createBuild(formData: FormData) {
 
   if (error) throw error;
 
-  const photos = formData.getAll("photos") as File[];
-  const inserted = await uploadPhotos(build.id, photos, 0);
+  const inserted = await uploadAllCategories(build.id, formData, 0);
 
   const firstImage = inserted.find((img) => img.sort_order === 0);
   if (firstImage) {
@@ -185,8 +205,7 @@ export async function updateBuild(buildId: string, formData: FormData) {
     .select("id", { count: "exact", head: true })
     .eq("build_id", buildId);
 
-  const photos = formData.getAll("photos") as File[];
-  const inserted = await uploadPhotos(buildId, photos, count ?? 0);
+  const inserted = await uploadAllCategories(buildId, formData, count ?? 0);
 
   if (!selectedCoverId && (count ?? 0) === 0 && inserted.length > 0) {
     await supabase

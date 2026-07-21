@@ -9,7 +9,7 @@ export async function getBuilds(
   const supabase = await createClient();
   let query = supabase
     .from("builds")
-    .select("*, build_images(*)")
+    .select("*, build_images!build_images_build_id_fkey(*)")
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
 
@@ -35,7 +35,7 @@ export async function getBuildBySlug(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("builds")
-    .select("*, build_images(*)")
+    .select("*, build_images!build_images_build_id_fkey(*)")
     .eq("slug", slug)
     .maybeSingle();
 

@@ -14,7 +14,7 @@ export default async function EditBuildPage({
 
   const { data: build } = await supabase
     .from("builds")
-    .select("*, build_images(*)")
+    .select("*, build_images!build_images_build_id_fkey(*)")
     .eq("id", id)
     .maybeSingle<BuildWithImages>();
 

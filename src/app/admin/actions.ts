@@ -9,19 +9,7 @@ import type { BuildStatus } from "@/lib/types";
 
 const MAX_DIMENSION = 2400;
 
-function isHeic(file: File) {
-  return (
-    /image\/hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name)
-  );
-}
-
 async function processImage(file: File): Promise<Buffer> {
-  if (isHeic(file)) {
-    throw new Error(
-      `"${file.name}" is a HEIC photo. Please convert it to JPG before uploading (on iPhone: Settings > Camera > Formats > Most Compatible saves new photos as JPG automatically).`
-    );
-  }
-
   const source = Buffer.from(await file.arrayBuffer());
 
   return sharp(source)

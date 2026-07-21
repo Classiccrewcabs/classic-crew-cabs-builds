@@ -1,14 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
 import { buildImageUrl } from "@/lib/image-url";
 import type { Build, BuildImage } from "@/lib/types";
-
-function isHeicFile(file: File) {
-  return /image\/hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
-}
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -64,31 +59,8 @@ export function BuildForm({
   existingImages?: BuildImage[];
   submitLabel: string;
 }) {
-  const [heicFiles, setHeicFiles] = useState<string[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    setHeicFiles(files.filter(isHeicFile).map((f) => f.name));
-  }
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    const files = Array.from(fileInputRef.current?.files ?? []);
-    const heic = files.filter(isHeicFile);
-    if (heic.length > 0) {
-      e.preventDefault();
-      alert(
-        `These photos are HEIC format and can't be uploaded yet:\n\n${heic
-          .map((f) => f.name)
-          .join(
-            "\n"
-          )}\n\nConvert them to JPG first, then remove them from the file picker and try again.\n\nTip: On iPhone, go to Settings > Camera > Formats > Most Compatible, and new photos will save as JPG automatically.`
-      );
-    }
-  }
-
   return (
-    <form action={action} onSubmit={handleSubmit} className="max-w-3xl space-y-8">
+    <form action={action} className="max-w-3xl space-y-8">
       {build && <input type="hidden" name="slug" value={build.slug} />}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -191,25 +163,12 @@ export function BuildForm({
             : "Photos (up to 10)"}
         </label>
         <input
-          ref={fileInputRef}
           type="file"
           name="photos"
-          accept="image/*,.heic,.heif"
+          accept="image/*"
           multiple
-          onChange={handleFileChange}
           className="w-full border border-navy/20 px-3 py-2 text-navy file:mr-4 file:border-0 file:bg-navy file:text-cream file:px-4 file:py-2 file:uppercase file:text-xs file:font-semibold"
         />
-        {heicFiles.length > 0 && (
-          <p className="text-red text-sm mt-2">
-            These are HEIC files and won&apos;t upload yet: {heicFiles.join(", ")}
-            . Convert to JPG first (see tip below).
-          </p>
-        )}
-        <p className="text-xs text-navy/50 mt-2">
-          Tip: iPhone photos are often saved as HEIC. To have new photos save
-          as JPG automatically, go to iPhone Settings &rarr; Camera &rarr;
-          Formats &rarr; Most Compatible.
-        </p>
       </div>
 
       <SubmitButton label={submitLabel} />

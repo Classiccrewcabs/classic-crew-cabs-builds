@@ -1,18 +1,51 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getBuildBySlug } from "@/lib/builds";
-import { getDisplayTitle, getVehicleLine } from "@/lib/build-helpers";
+import { getBuildBySlug, buildImageUrl } from "@/lib/builds";
+import { getCoverImage, getDisplayTitle, getVehicleLine } from "@/lib/build-helpers";
 import { BuildGallery } from "@/components/BuildGallery";
 
 export const revalidate = 0;
 
 const CONTACT_URL = "https://classiccrewcabs.com/pages/contact";
 
-export default async function BuildPage({
+type BuildPageParams = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+}: BuildPageParams): Promise<Metadata> {
+  const { slug } = await params;
+  const build = await getBuildBySlug(slug);
+
+  if (!build) return {};
+
+  const title = getDisplayTitle(build);
+  const vehicleLine = getVehicleLine(build);
+  const description =
+    build.description?.trim().slice(0, 160) ||
+    [vehicleLine, build.exterior_color, build.engine]
+      .filter(Boolean)
+      .join(" — ");
+  const cover = getCoverImage(build);
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/builds/${build.slug}` },
+    openGraph: {
+      title: `${title} | ${vehicleLine}`,
+      description,
+      images: cover ? [buildImageUrl(cover.storage_path)] : undefined,
+    },
+    twitter: {
+      title,
+      description,
+      images: cover ? [buildImageUrl(cover.storage_path)] : undefined,
+    },
+  };
+}
+
+export default async function BuildPage({ params }: BuildPageParams) {
   const { slug } = await params;
   const build = await getBuildBySlug(slug);
 

@@ -10,7 +10,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className={`text-sm font-semibold uppercase tracking-wide pb-1 border-b-2 transition-colors ${
+      className={`text-lg sm:text-xl font-extrabold uppercase tracking-wide pb-1 border-b-4 transition-colors ${
         isActive
           ? "text-navy border-red"
           : "text-navy/50 border-transparent hover:text-navy"
@@ -39,7 +39,7 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-8">
           <NavLink href="/" label="For Sale" />
           <NavLink href="/past-builds" label="Past Builds" />
         </nav>

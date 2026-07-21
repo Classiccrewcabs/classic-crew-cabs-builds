@@ -3,18 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const MAIN_SITE = "https://classiccrewcabs.com";
-
-const MAIN_NAV = [
-  { label: "Home", href: MAIN_SITE },
-  { label: "About Us", href: `${MAIN_SITE}/pages/about-us` },
-  { label: "Trucks For Sale", href: `${MAIN_SITE}/collections/trucks` },
-  { label: "Parts", href: `${MAIN_SITE}/collections/body-parts` },
-  { label: "Logo Store", href: `${MAIN_SITE}/collections/hats` },
-  { label: "Contact Us", href: `${MAIN_SITE}/pages/contact` },
-  { label: "Builds", href: MAIN_SITE },
-];
+import { MAIN_SITE, MAIN_NAV, ACCOUNT_URL, CART_URL } from "@/lib/main-site-nav";
+import { MainSiteNavItem } from "@/components/MainSiteNavItem";
 
 function NavLink({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
@@ -65,7 +55,7 @@ export function SiteHeader() {
             Start Your Build
           </a>
           <a
-            href={`${MAIN_SITE}/account`}
+            href={ACCOUNT_URL}
             aria-label="Account (on main site)"
             className="text-navy hover:text-red transition-colors"
           >
@@ -82,7 +72,7 @@ export function SiteHeader() {
             </svg>
           </a>
           <a
-            href={`${MAIN_SITE}/cart`}
+            href={CART_URL}
             aria-label="Cart (on main site)"
             className="text-navy hover:text-red transition-colors"
           >
@@ -103,13 +93,7 @@ export function SiteHeader() {
 
       <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-navy/10 px-6 py-3 sm:px-10">
         {MAIN_NAV.map((item) => (
-          <a
-            key={item.label}
-            href={item.href}
-            className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-navy/70 hover:text-navy transition-colors"
-          >
-            {item.label}
-          </a>
+          <MainSiteNavItem key={item.label} node={item} />
         ))}
       </nav>
 

@@ -25,6 +25,9 @@ export function BuildCard({ build }: { build: BuildWithImages }) {
           {build.exterior_color}
         </p>
       )}
+      {build.category === "for_sale" && build.price && (
+        <p className="font-bold text-navy mt-1">{build.price}</p>
+      )}
 
       <div className="relative mt-4 aspect-[4/3] bg-white">
         {build.status !== "available" && (

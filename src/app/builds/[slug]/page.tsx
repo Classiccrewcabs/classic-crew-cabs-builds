@@ -25,13 +25,17 @@ export default async function BuildPage({
     { label: "Interior", value: build.interior },
   ].filter((spec) => spec.value);
 
+  const backHref = build.category === "for_sale" ? "/" : "/past-builds";
+  const backLabel =
+    build.category === "for_sale" ? "All For Sale" : "All Past Builds";
+
   return (
     <div className="px-6 py-10 sm:px-10 lg:px-16">
       <Link
-        href="/"
+        href={backHref}
         className="text-sm font-semibold uppercase tracking-wide text-navy/70 hover:text-navy"
       >
-        &larr; All Builds
+        &larr; {backLabel}
       </Link>
 
       <div className="mt-6 flex flex-wrap items-baseline gap-3">
@@ -46,6 +50,9 @@ export default async function BuildPage({
           <span className="bg-navy text-cream text-xs font-semibold uppercase tracking-wide px-2 py-1">
             {build.status}
           </span>
+        )}
+        {build.category === "for_sale" && build.price && (
+          <span className="text-xl font-bold text-navy">{build.price}</span>
         )}
       </div>
 

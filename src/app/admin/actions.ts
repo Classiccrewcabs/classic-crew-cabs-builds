@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { makeBuildSlug } from "@/lib/slug";
-import type { BuildStatus } from "@/lib/types";
+import type { BuildCategory, BuildStatus } from "@/lib/types";
 
 const MAX_DIMENSION = 2400;
 
@@ -26,6 +26,9 @@ async function processImage(file: File): Promise<Buffer> {
 
 function readBuildFields(formData: FormData) {
   return {
+    category: String(
+      formData.get("category") ?? "past_build"
+    ) as BuildCategory,
     year: Number(formData.get("year")),
     make: String(formData.get("make") ?? "").trim(),
     model: String(formData.get("model") ?? "").trim(),
@@ -44,6 +47,9 @@ function readBuildFields(formData: FormData) {
       | null,
     description: (String(formData.get("description") ?? "").trim() ||
       null) as string | null,
+    price: (String(formData.get("price") ?? "").trim() || null) as
+      | string
+      | null,
     status: String(formData.get("status") ?? "available") as BuildStatus,
   };
 }
@@ -98,6 +104,7 @@ export async function createBuild(formData: FormData) {
   await uploadPhotos(build.id, photos, 0);
 
   revalidatePath("/");
+  revalidatePath("/past-builds");
   revalidatePath("/admin");
   redirect("/admin");
 }
@@ -143,6 +150,7 @@ export async function updateBuild(buildId: string, formData: FormData) {
   await uploadPhotos(buildId, photos, count ?? 0);
 
   revalidatePath("/");
+  revalidatePath("/past-builds");
   revalidatePath(`/builds/${formData.get("slug")}`);
   revalidatePath("/admin");
   redirect("/admin");
@@ -167,6 +175,7 @@ export async function deleteBuild(formData: FormData) {
   if (error) throw error;
 
   revalidatePath("/");
+  revalidatePath("/past-builds");
   revalidatePath("/admin");
 }
 

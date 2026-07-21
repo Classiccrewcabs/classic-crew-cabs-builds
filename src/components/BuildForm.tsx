@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
 import { buildImageUrl } from "@/lib/image-url";
@@ -59,9 +60,28 @@ export function BuildForm({
   existingImages?: BuildImage[];
   submitLabel: string;
 }) {
+  const [category, setCategory] = useState(build?.category ?? "past_build");
+
   return (
     <form action={action} className="max-w-3xl space-y-8">
       {build && <input type="hidden" name="slug" value={build.slug} />}
+
+      <div>
+        <label className="block text-xs uppercase tracking-wide text-navy/60 mb-1">
+          Category
+        </label>
+        <select
+          name="category"
+          value={category}
+          onChange={(e) =>
+            setCategory(e.target.value as "for_sale" | "past_build")
+          }
+          className="w-full max-w-xs border border-navy/20 px-3 py-2 text-navy focus:outline-none focus:border-navy bg-white"
+        >
+          <option value="for_sale">For Sale</option>
+          <option value="past_build">Past Build</option>
+        </select>
+      </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <Field
@@ -113,6 +133,13 @@ export function BuildForm({
             <option value="featured">Featured</option>
           </select>
         </div>
+        {category === "for_sale" && (
+          <Field
+            label="Price"
+            name="price"
+            defaultValue={build?.price}
+          />
+        )}
       </div>
 
       <div>

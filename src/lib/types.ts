@@ -1,8 +1,10 @@
 export type BuildStatus = "available" | "sold" | "featured";
+export type BuildCategory = "for_sale" | "past_build";
 
 export type Build = {
   id: string;
   slug: string;
+  category: BuildCategory;
   year: number;
   make: string;
   model: string;
@@ -12,6 +14,7 @@ export type Build = {
   transmission: string | null;
   interior: string | null;
   description: string | null;
+  price: string | null;
   status: BuildStatus;
   sort_order: number;
   created_at: string;

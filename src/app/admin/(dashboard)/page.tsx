@@ -52,7 +52,10 @@ export default async function AdminDashboard() {
                     {build.year} {build.make} {build.model}
                   </p>
                   <p className="text-xs uppercase tracking-wide text-navy/50">
-                    {build.status} &middot; {build.build_images.length} photo
+                    {build.category === "for_sale" ? "For Sale" : "Past Build"}
+                    {" "}
+                    &middot; {build.status} &middot;{" "}
+                    {build.build_images.length} photo
                     {build.build_images.length === 1 ? "" : "s"}
                   </p>
                 </div>

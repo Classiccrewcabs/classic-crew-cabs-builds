@@ -103,7 +103,7 @@ export async function createBuild(formData: FormData) {
   const photos = formData.getAll("photos") as File[];
   await uploadPhotos(build.id, photos, 0);
 
-  revalidatePath("/");
+  revalidatePath("/for-sale");
   revalidatePath("/past-builds");
   revalidatePath("/admin");
   redirect("/admin");
@@ -149,7 +149,7 @@ export async function updateBuild(buildId: string, formData: FormData) {
   const photos = formData.getAll("photos") as File[];
   await uploadPhotos(buildId, photos, count ?? 0);
 
-  revalidatePath("/");
+  revalidatePath("/for-sale");
   revalidatePath("/past-builds");
   revalidatePath(`/builds/${formData.get("slug")}`);
   revalidatePath("/admin");
@@ -174,7 +174,7 @@ export async function deleteBuild(formData: FormData) {
   const { error } = await supabase.from("builds").delete().eq("id", buildId);
   if (error) throw error;
 
-  revalidatePath("/");
+  revalidatePath("/for-sale");
   revalidatePath("/past-builds");
   revalidatePath("/admin");
 }

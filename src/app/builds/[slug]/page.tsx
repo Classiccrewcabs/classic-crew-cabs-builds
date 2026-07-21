@@ -25,7 +25,7 @@ export default async function BuildPage({
     { label: "Interior", value: build.interior },
   ].filter((spec) => spec.value);
 
-  const backHref = build.category === "for_sale" ? "/" : "/past-builds";
+  const backHref = build.category === "for_sale" ? "/for-sale" : "/past-builds";
   const backLabel =
     build.category === "for_sale" ? "All For Sale" : "All Past Builds";
 

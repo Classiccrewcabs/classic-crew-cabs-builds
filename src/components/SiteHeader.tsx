@@ -22,6 +22,9 @@ function NavLink({ href, label }: { href: string; label: string }) {
 }
 
 export function SiteHeader() {
+  const pathname = usePathname();
+  const isLanding = pathname === "/";
+
   return (
     <header className="border-b border-black/10">
       <div className="bg-navy text-cream text-center text-xs tracking-[0.2em] uppercase py-2 px-4">
@@ -39,10 +42,12 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-8">
-          <NavLink href="/" label="For Sale" />
-          <NavLink href="/past-builds" label="Past Builds" />
-        </nav>
+        {!isLanding && (
+          <nav className="flex items-center gap-8">
+            <NavLink href="/for-sale" label="For Sale" />
+            <NavLink href="/past-builds" label="Past Builds" />
+          </nav>
+        )}
 
         <a
           href="https://classiccrewcabs.com"

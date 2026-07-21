@@ -30,7 +30,7 @@ export function SiteHeader() {
   const isPastBuilds = pathname === "/past-builds";
 
   return (
-    <header className="border-b border-black/10">
+    <>
       <div className="bg-navy text-cream text-center text-xs tracking-[0.2em] uppercase py-2 px-4">
         1957&ndash;1979 Crew Cab Builds | Frame-Off Restorations | Built to
         Order
@@ -56,7 +56,11 @@ export function SiteHeader() {
         </a>
       </div>
 
-      <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-navy/10 px-6 py-3 sm:px-10">
+      <nav
+        className={`flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-navy/10 px-6 py-3 sm:px-10 ${
+          isLanding ? "border-b border-black/10" : ""
+        }`}
+      >
         {MAIN_NAV.map((item) => (
           <MainSiteNavItem key={item.label} node={item} />
         ))}
@@ -97,11 +101,11 @@ export function SiteHeader() {
       </nav>
 
       {!isLanding && (
-        <div className="flex items-center justify-center gap-8 border-t border-navy/10 bg-cream px-6 py-4 sm:px-10">
+        <div className="flex items-center justify-center gap-8 border-t border-b border-navy/10 border-black/10 bg-cream px-6 py-4 sm:px-10">
           <NavLink href="/for-sale" label="For Sale" />
           <NavLink href="/past-builds" label="Past Builds" />
         </div>
       )}
-    </header>
+    </>
   );
 }

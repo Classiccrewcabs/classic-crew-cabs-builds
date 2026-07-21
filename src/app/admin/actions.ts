@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import heicConvert from "heic-convert";
 import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { makeBuildSlug } from "@/lib/slug";
@@ -17,18 +16,15 @@ function isHeic(file: File) {
 }
 
 async function processImage(file: File): Promise<Buffer> {
-  let jpegSource = Buffer.from(await file.arrayBuffer());
-
   if (isHeic(file)) {
-    const converted = await heicConvert({
-      buffer: jpegSource,
-      format: "JPEG",
-      quality: 0.9,
-    });
-    jpegSource = Buffer.from(converted);
+    throw new Error(
+      `"${file.name}" is a HEIC photo. Please convert it to JPG before uploading (on iPhone: Settings > Camera > Formats > Most Compatible saves new photos as JPG automatically).`
+    );
   }
 
-  return sharp(jpegSource)
+  const source = Buffer.from(await file.arrayBuffer());
+
+  return sharp(source)
     .rotate()
     .resize({
       width: MAX_DIMENSION,

@@ -105,14 +105,8 @@ export default async function BuildPage({ params }: BuildPageParams) {
             Contact Us About a Build
           </a>
 
-          {(build.status !== "available" || build.price) && (
-            <div className="flex items-center gap-3 text-lg font-bold uppercase">
-              {build.status !== "available" && <span>{build.status}</span>}
-              {build.status !== "available" && build.price && (
-                <span className="text-red">/</span>
-              )}
-              {build.price && <span>{build.price}</span>}
-            </div>
+          {build.price && (
+            <div className="text-lg font-bold uppercase">{build.price}</div>
           )}
         </div>
 

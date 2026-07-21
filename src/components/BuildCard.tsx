@@ -13,11 +13,6 @@ export function BuildCard({ build }: { build: BuildWithImages }) {
   return (
     <div className="border border-navy/10 bg-white">
       <div className="relative aspect-[16/9] bg-navy/5">
-        {build.status !== "available" && (
-          <span className="absolute top-4 left-4 z-10 bg-navy text-cream text-xs font-semibold uppercase tracking-wide px-3 py-1.5">
-            {build.status}
-          </span>
-        )}
         {build.price && (
           <span className="absolute top-4 right-4 z-10 bg-red text-cream text-sm font-bold px-3 py-1.5">
             {build.price}

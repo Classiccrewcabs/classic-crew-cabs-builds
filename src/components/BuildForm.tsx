@@ -151,20 +151,6 @@ export function BuildForm({
             name="interior"
             defaultValue={build?.interior}
           />
-          <div>
-            <label className="block text-xs uppercase tracking-wide text-navy/60 mb-1">
-              Status
-            </label>
-            <select
-              name="status"
-              defaultValue={build?.status ?? "available"}
-              className="w-full border border-navy/20 px-3 py-2 text-navy focus:outline-none focus:border-navy bg-white"
-            >
-              <option value="available">Available</option>
-              <option value="sold">Sold</option>
-              <option value="featured">Featured</option>
-            </select>
-          </div>
           <Field
             label="Price (optional — leave blank to hide)"
             name="price"

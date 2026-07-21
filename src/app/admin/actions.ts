@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { makeBuildSlug } from "@/lib/slug";
-import type { BuildCategory, BuildStatus, PhotoCategory } from "@/lib/types";
+import type { BuildCategory, PhotoCategory } from "@/lib/types";
 
 const MAX_DIMENSION = 2400;
 const PHOTO_CATEGORIES: PhotoCategory[] = ["exterior", "interior", "detail"];
@@ -63,7 +63,6 @@ function readBuildFields(formData: FormData) {
     price: (String(formData.get("price") ?? "").trim() || null) as
       | string
       | null,
-    status: String(formData.get("status") ?? "available") as BuildStatus,
   };
 }
 
@@ -238,6 +237,47 @@ export async function deleteBuild(formData: FormData) {
 
   const { error } = await supabase.from("builds").delete().eq("id", buildId);
   if (error) throw error;
+
+  revalidatePath("/for-sale");
+  revalidatePath("/past-builds");
+  revalidatePath("/admin");
+}
+
+export async function moveBuild(formData: FormData) {
+  const supabase = await createClient();
+  const buildId = String(formData.get("build_id"));
+  const direction = String(formData.get("direction"));
+
+  const { data: target } = await supabase
+    .from("builds")
+    .select("id, category")
+    .eq("id", buildId)
+    .single();
+
+  if (!target) return;
+
+  const { data: siblings } = await supabase
+    .from("builds")
+    .select("id")
+    .eq("category", target.category)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: false });
+
+  if (!siblings) return;
+
+  const ids = siblings.map((b) => b.id);
+  const idx = ids.indexOf(buildId);
+  const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+
+  if (swapIdx < 0 || swapIdx >= ids.length) return;
+
+  [ids[idx], ids[swapIdx]] = [ids[swapIdx], ids[idx]];
+
+  await Promise.all(
+    ids.map((id, i) =>
+      supabase.from("builds").update({ sort_order: i }).eq("id", id)
+    )
+  );
 
   revalidatePath("/for-sale");
   revalidatePath("/past-builds");

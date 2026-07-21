@@ -9,7 +9,7 @@ import type { Build, BuildImage, PhotoCategory } from "@/lib/types";
 const PHOTO_CATEGORY_GROUPS: { key: PhotoCategory; label: string }[] = [
   { key: "exterior", label: "Exterior" },
   { key: "interior", label: "Interior" },
-  { key: "detail", label: "Detail" },
+  { key: "detail", label: "Mechanical" },
 ];
 
 function SubmitButton({ label }: { label: string }) {

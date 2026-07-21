@@ -8,7 +8,7 @@ import type { BuildImage, PhotoCategory } from "@/lib/types";
 const TABS: { key: PhotoCategory; label: string }[] = [
   { key: "exterior", label: "Exterior" },
   { key: "interior", label: "Interior" },
-  { key: "detail", label: "Detail" },
+  { key: "detail", label: "Mechanical" },
 ];
 
 export function BuildGallery({

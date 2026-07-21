@@ -29,6 +29,9 @@ function readBuildFields(formData: FormData) {
     category: String(
       formData.get("category") ?? "past_build"
     ) as BuildCategory,
+    title: (String(formData.get("title") ?? "").trim() || null) as
+      | string
+      | null,
     year: Number(formData.get("year")),
     make: String(formData.get("make") ?? "").trim(),
     model: String(formData.get("model") ?? "").trim(),
@@ -42,9 +45,18 @@ function readBuildFields(formData: FormData) {
       | null,
     transmission: (String(formData.get("transmission") ?? "").trim() ||
       null) as string | null,
+    axles: (String(formData.get("axles") ?? "").trim() || null) as
+      | string
+      | null,
+    brakes: (String(formData.get("brakes") ?? "").trim() || null) as
+      | string
+      | null,
     interior: (String(formData.get("interior") ?? "").trim() || null) as
       | string
       | null,
+    creature_comforts: (String(
+      formData.get("creature_comforts") ?? ""
+    ).trim() || null) as string | null,
     description: (String(formData.get("description") ?? "").trim() ||
       null) as string | null,
     price: (String(formData.get("price") ?? "").trim() || null) as
@@ -60,6 +72,7 @@ async function uploadPhotos(
   startingSortOrder: number
 ) {
   const supabase = await createClient();
+  const inserted: { id: string; sort_order: number }[] = [];
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
@@ -77,14 +90,21 @@ async function uploadPhotos(
 
     if (uploadError) throw uploadError;
 
-    const { error: insertError } = await supabase.from("build_images").insert({
-      build_id: buildId,
-      storage_path: path,
-      sort_order: startingSortOrder + i,
-    });
+    const { data: image, error: insertError } = await supabase
+      .from("build_images")
+      .insert({
+        build_id: buildId,
+        storage_path: path,
+        sort_order: startingSortOrder + i,
+      })
+      .select("id, sort_order")
+      .single();
 
     if (insertError) throw insertError;
+    inserted.push(image);
   }
+
+  return inserted;
 }
 
 export async function createBuild(formData: FormData) {
@@ -101,7 +121,15 @@ export async function createBuild(formData: FormData) {
   if (error) throw error;
 
   const photos = formData.getAll("photos") as File[];
-  await uploadPhotos(build.id, photos, 0);
+  const inserted = await uploadPhotos(build.id, photos, 0);
+
+  const firstImage = inserted.find((img) => img.sort_order === 0);
+  if (firstImage) {
+    await supabase
+      .from("builds")
+      .update({ cover_image_id: firstImage.id })
+      .eq("id", build.id);
+  }
 
   revalidatePath("/for-sale");
   revalidatePath("/past-builds");
@@ -141,13 +169,31 @@ export async function updateBuild(buildId: string, formData: FormData) {
     }
   }
 
+  const selectedCoverId = formData.get("cover_image_id");
+  if (
+    selectedCoverId &&
+    !imageIdsToDelete.includes(String(selectedCoverId))
+  ) {
+    await supabase
+      .from("builds")
+      .update({ cover_image_id: String(selectedCoverId) })
+      .eq("id", buildId);
+  }
+
   const { count } = await supabase
     .from("build_images")
     .select("id", { count: "exact", head: true })
     .eq("build_id", buildId);
 
   const photos = formData.getAll("photos") as File[];
-  await uploadPhotos(buildId, photos, count ?? 0);
+  const inserted = await uploadPhotos(buildId, photos, count ?? 0);
+
+  if (!selectedCoverId && (count ?? 0) === 0 && inserted.length > 0) {
+    await supabase
+      .from("builds")
+      .update({ cover_image_id: inserted[0].id })
+      .eq("id", buildId);
+  }
 
   revalidatePath("/for-sale");
   revalidatePath("/past-builds");

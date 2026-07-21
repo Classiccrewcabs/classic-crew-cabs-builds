@@ -15,7 +15,7 @@ export function BuildGrid({
           {emptyMessage}
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-16">
+        <div className="max-w-4xl mx-auto flex flex-col gap-10">
           {builds.map((build) => (
             <BuildCard key={build.id} build={build} />
           ))}

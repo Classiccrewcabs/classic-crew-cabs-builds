@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getBuilds, buildImageUrl } from "@/lib/builds";
+import { getCoverImage, getDisplayTitle } from "@/lib/build-helpers";
 import { DeleteBuildForm } from "@/components/DeleteBuildForm";
 
 export const revalidate = 0;
@@ -30,7 +31,7 @@ export default async function AdminDashboard() {
       ) : (
         <div className="divide-y divide-navy/10 border-y border-navy/10">
           {builds.map((build) => {
-            const cover = build.build_images[0];
+            const cover = getCoverImage(build);
             return (
               <div
                 key={build.id}
@@ -49,7 +50,7 @@ export default async function AdminDashboard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-navy truncate">
-                    {build.year} {build.make} {build.model}
+                    {getDisplayTitle(build)}
                   </p>
                   <p className="text-xs uppercase tracking-wide text-navy/50">
                     {build.category === "for_sale" ? "For Sale" : "Past Build"}

@@ -1,47 +1,35 @@
 import Image from "next/image";
 import Link from "next/link";
 import { buildImageUrl } from "@/lib/builds";
+import { getCoverImage, getDisplayTitle } from "@/lib/build-helpers";
 import type { BuildWithImages } from "@/lib/types";
 
 export function BuildCard({ build }: { build: BuildWithImages }) {
-  const cover = build.build_images[0];
+  const cover = getCoverImage(build);
+  const vehicleLine = [build.year, build.make, build.model, build.package]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <Link href={`/builds/${build.slug}`} className="group block">
-      <div className="flex items-baseline gap-1 text-navy">
-        <span className="text-lg font-semibold">{build.year}</span>
-        <span className="text-red text-lg leading-none">/</span>
-      </div>
-      <h3 className="font-bold uppercase tracking-tight text-navy text-xl leading-snug">
-        {build.make} {build.model}
-      </h3>
-      {build.package && (
-        <p className="font-semibold uppercase text-sm text-navy mt-1">
-          {build.package}
-        </p>
-      )}
-      {build.exterior_color && (
-        <p className="text-red text-xs uppercase tracking-wide">
-          {build.exterior_color}
-        </p>
-      )}
-      {build.category === "for_sale" && build.price && (
-        <p className="font-bold text-navy mt-1">{build.price}</p>
-      )}
-
-      <div className="relative mt-4 aspect-[4/3] bg-white">
+    <div className="border border-navy/10 bg-white">
+      <div className="relative aspect-[16/9] bg-navy/5">
         {build.status !== "available" && (
-          <span className="absolute top-3 left-3 z-10 bg-navy text-cream text-[0.65rem] font-semibold uppercase tracking-wide px-2 py-1">
+          <span className="absolute top-4 left-4 z-10 bg-navy text-cream text-xs font-semibold uppercase tracking-wide px-3 py-1.5">
             {build.status}
+          </span>
+        )}
+        {build.price && (
+          <span className="absolute top-4 right-4 z-10 bg-red text-cream text-sm font-bold px-3 py-1.5">
+            {build.price}
           </span>
         )}
         {cover ? (
           <Image
             src={buildImageUrl(cover.storage_path)}
-            alt={`${build.year} ${build.make} ${build.model}`}
+            alt={getDisplayTitle(build)}
             fill
-            className="object-contain"
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover"
+            sizes="(min-width: 1024px) 900px, 100vw"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-navy/30 text-sm uppercase">
@@ -50,13 +38,21 @@ export function BuildCard({ build }: { build: BuildWithImages }) {
         )}
       </div>
 
-      <div className="mt-4 flex items-center gap-2 text-navy font-semibold uppercase text-sm">
-        View Build
-        <span className="transition-transform group-hover:translate-x-1">
-          &rarr;
-        </span>
+      <div className="p-6 sm:p-8">
+        <p className="text-red text-sm font-semibold uppercase tracking-wide mb-1">
+          {vehicleLine}
+        </p>
+        <h2 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-navy">
+          {build.title?.trim() || vehicleLine}
+        </h2>
+
+        <Link
+          href={`/builds/${build.slug}`}
+          className="inline-block mt-6 bg-navy text-cream font-semibold uppercase tracking-wide text-sm px-6 py-3 hover:bg-navy-light transition-colors"
+        >
+          View Details
+        </Link>
       </div>
-      <div className="mt-3 h-[3px] bg-red" />
-    </Link>
+    </div>
   );
 }

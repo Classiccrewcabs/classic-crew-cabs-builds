@@ -102,7 +102,9 @@ export default async function BuildPage({ params }: BuildPageParams) {
             href={CONTACT_URL}
             className="bg-red text-cream font-semibold uppercase tracking-wide text-sm px-6 py-3 hover:bg-red-dark transition-colors self-start sm:self-auto"
           >
-            Contact Us About a Build
+            {build.category === "for_sale"
+              ? "Contact Us About This Truck"
+              : "Contact Us About a Build"}
           </a>
 
           {build.price && (

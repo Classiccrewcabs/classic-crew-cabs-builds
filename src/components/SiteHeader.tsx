@@ -27,9 +27,10 @@ function NavLink({ href, label }: { href: string; label: string }) {
 export function SiteHeader() {
   const pathname = usePathname();
   const isLanding = pathname === "/";
+  const isPastBuilds = pathname === "/past-builds";
 
   return (
-    <header className="border-b border-black/10">
+    <header className="sticky top-0 z-50 bg-cream border-b border-black/10">
       <div className="bg-navy text-cream text-center text-xs tracking-[0.2em] uppercase py-2 px-4">
         1957&ndash;1979 Crew Cab Builds | Frame-Off Restorations | Built to
         Order
@@ -52,7 +53,7 @@ export function SiteHeader() {
             href={`${MAIN_SITE}/pages/contact`}
             className="bg-red text-cream font-semibold uppercase tracking-wide text-xs sm:text-sm px-4 py-2.5 hover:bg-red-dark transition-colors"
           >
-            Start Your Build
+            {isPastBuilds ? "Contact Us About a Build" : "Start Your Build"}
           </a>
           <a
             href={ACCOUNT_URL}

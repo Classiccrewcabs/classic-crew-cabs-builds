@@ -3,14 +3,41 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import heicConvert from "heic-convert";
+import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { makeBuildSlug } from "@/lib/slug";
 import type { BuildStatus } from "@/lib/types";
+
+const MAX_DIMENSION = 2400;
 
 function isHeic(file: File) {
   return (
     /image\/hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name)
   );
+}
+
+async function processImage(file: File): Promise<Buffer> {
+  let jpegSource = Buffer.from(await file.arrayBuffer());
+
+  if (isHeic(file)) {
+    const converted = await heicConvert({
+      buffer: jpegSource,
+      format: "JPEG",
+      quality: 0.9,
+    });
+    jpegSource = Buffer.from(converted);
+  }
+
+  return sharp(jpegSource)
+    .rotate()
+    .resize({
+      width: MAX_DIMENSION,
+      height: MAX_DIMENSION,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .jpeg({ quality: 82, mozjpeg: true })
+    .toBuffer();
 }
 
 function readBuildFields(formData: FormData) {
@@ -48,27 +75,15 @@ async function uploadPhotos(
     const file = files[i];
     if (!file || file.size === 0) continue;
 
-    let body: File | Buffer = file;
-    let contentType = file.type || "image/jpeg";
-    let safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-
-    if (isHeic(file)) {
-      const inputBuffer = Buffer.from(await file.arrayBuffer());
-      const outputBuffer = await heicConvert({
-        buffer: inputBuffer,
-        format: "JPEG",
-        quality: 0.9,
-      });
-      body = Buffer.from(outputBuffer);
-      contentType = "image/jpeg";
-      safeName = safeName.replace(/\.hei[cf]$/i, "") + ".jpg";
-    }
-
+    const body = await processImage(file);
+    const safeName =
+      file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_").replace(/\.\w+$/, "") +
+      ".jpg";
     const path = `${buildId}/${Date.now()}-${i}-${safeName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("build-photos")
-      .upload(path, body, { contentType });
+      .upload(path, body, { contentType: "image/jpeg" });
 
     if (uploadError) throw uploadError;
 

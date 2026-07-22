@@ -9,13 +9,7 @@ export type NavNode = {
 export const MAIN_NAV: NavNode[] = [
   { label: "Home", href: `${MAIN_SITE}/` },
   { label: "About Us", href: `${MAIN_SITE}/pages/about-us` },
-  {
-    label: "Trucks For Sale",
-    children: [
-      { label: "Available Trucks", href: `${MAIN_SITE}/collections/trucks` },
-      { label: "Sold Trucks", href: `${MAIN_SITE}/collections/sold-trucks` },
-    ],
-  },
+  { label: "Trucks", href: "https://builds.classiccrewcabs.com" },
   {
     label: "Parts",
     children: [

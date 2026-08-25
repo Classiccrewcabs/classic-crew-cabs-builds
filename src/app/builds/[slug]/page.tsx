@@ -52,9 +52,17 @@ export default async function BuildPage({ params }: BuildPageParams) {
   if (!build) notFound();
 
   const backHref =
-    build.category === "for_sale" ? "/for-sale" : "/past-builds";
+    build.category === "for_sale"
+      ? build.sale_type === "project"
+        ? "/for-sale/project"
+        : "/for-sale/turn-key"
+      : "/past-builds";
   const backLabel =
-    build.category === "for_sale" ? "All For Sale" : "All Past Builds";
+    build.category === "for_sale"
+      ? build.sale_type === "project"
+        ? "All Project Trucks"
+        : "All Turn-Key"
+      : "All Past Builds";
 
   const overview = [
     { label: "Color", value: build.exterior_color },

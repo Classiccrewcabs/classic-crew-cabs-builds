@@ -152,6 +152,8 @@ export async function createBuild(formData: FormData) {
   }
 
   revalidatePath("/for-sale");
+  revalidatePath("/for-sale/turn-key");
+  revalidatePath("/for-sale/project");
   revalidatePath("/past-builds");
   revalidatePath("/admin");
   redirect("/admin");
@@ -215,6 +217,8 @@ export async function updateBuild(buildId: string, formData: FormData) {
   }
 
   revalidatePath("/for-sale");
+  revalidatePath("/for-sale/turn-key");
+  revalidatePath("/for-sale/project");
   revalidatePath("/past-builds");
   revalidatePath(`/builds/${formData.get("slug")}`);
   revalidatePath("/admin");
@@ -240,6 +244,8 @@ export async function deleteBuild(formData: FormData) {
   if (error) throw error;
 
   revalidatePath("/for-sale");
+  revalidatePath("/for-sale/turn-key");
+  revalidatePath("/for-sale/project");
   revalidatePath("/past-builds");
   revalidatePath("/admin");
 }
@@ -281,6 +287,8 @@ export async function moveBuild(formData: FormData) {
   );
 
   revalidatePath("/for-sale");
+  revalidatePath("/for-sale/turn-key");
+  revalidatePath("/for-sale/project");
   revalidatePath("/past-builds");
   revalidatePath("/admin");
 }

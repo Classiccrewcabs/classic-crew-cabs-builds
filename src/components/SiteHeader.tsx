@@ -8,7 +8,7 @@ import { MainSiteNavItem } from "@/components/MainSiteNavItem";
 
 function NavLink({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <Link

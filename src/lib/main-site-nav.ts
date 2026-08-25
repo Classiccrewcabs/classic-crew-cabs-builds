@@ -8,7 +8,6 @@ export type NavNode = {
 
 export const MAIN_NAV: NavNode[] = [
   { label: "Home", href: `${MAIN_SITE}/` },
-  { label: "About Us", href: `${MAIN_SITE}/pages/about-us` },
   { label: "Trucks", href: "https://builds.classiccrewcabs.com" },
   {
     label: "Parts",
@@ -48,17 +47,8 @@ export const MAIN_NAV: NavNode[] = [
     label: "Logo Store",
     children: [{ label: "Hats", href: `${MAIN_SITE}/collections/hats` }],
   },
+  { label: "About Us", href: `${MAIN_SITE}/pages/about-us` },
   { label: "Contact Us", href: `${MAIN_SITE}/pages/contact` },
-  {
-    label: "Builds",
-    children: [
-      {
-        label: "Build Services",
-        href: `${MAIN_SITE}/pages/build-services`,
-      },
-      { label: "Build Process", href: `${MAIN_SITE}/pages/build-process` },
-    ],
-  },
 ];
 
 export const ACCOUNT_URL =

@@ -74,6 +74,11 @@ function BuildSection({
                     {getDisplayTitle(build)}
                   </p>
                   <p className="text-xs uppercase tracking-wide text-navy/50">
+                    {build.category === "for_sale" &&
+                      (build.sale_type === "project"
+                        ? "Project Truck"
+                        : "Turn-Key")}
+                    {build.category === "for_sale" && " · "}
                     {build.build_images.length} photo
                     {build.build_images.length === 1 ? "" : "s"}
                   </p>

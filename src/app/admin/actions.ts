@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { makeBuildSlug } from "@/lib/slug";
-import type { BuildCategory, PhotoCategory } from "@/lib/types";
+import type { BuildCategory, PhotoCategory, SaleType } from "@/lib/types";
 
 const MAX_DIMENSION = 2400;
 const PHOTO_CATEGORIES: PhotoCategory[] = ["exterior", "interior", "detail"];
@@ -63,6 +63,7 @@ function readBuildFields(formData: FormData) {
     price: (String(formData.get("price") ?? "").trim() || null) as
       | string
       | null,
+    sale_type: String(formData.get("sale_type") ?? "turn_key") as SaleType,
   };
 }
 

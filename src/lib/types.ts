@@ -1,5 +1,6 @@
 export type BuildCategory = "for_sale" | "past_build";
 export type PhotoCategory = "exterior" | "interior" | "detail";
+export type SaleType = "turn_key" | "project";
 
 export type Build = {
   id: string;
@@ -19,6 +20,7 @@ export type Build = {
   creature_comforts: string | null;
   description: string | null;
   price: string | null;
+  sale_type: SaleType;
   sort_order: number;
   cover_image_id: string | null;
   created_at: string;

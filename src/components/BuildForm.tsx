@@ -72,21 +72,39 @@ export function BuildForm({
     <form action={action} className="max-w-3xl space-y-10">
       {build && <input type="hidden" name="slug" value={build.slug} />}
 
-      <div>
-        <label className="block text-xs uppercase tracking-wide text-navy/60 mb-1">
-          Category
-        </label>
-        <select
-          name="category"
-          value={category}
-          onChange={(e) =>
-            setCategory(e.target.value as "for_sale" | "past_build")
-          }
-          className="w-full max-w-xs border border-navy/20 px-3 py-2 text-navy focus:outline-none focus:border-navy bg-white"
-        >
-          <option value="for_sale">For Sale</option>
-          <option value="past_build">Past Build</option>
-        </select>
+      <div className="flex flex-wrap gap-6">
+        <div>
+          <label className="block text-xs uppercase tracking-wide text-navy/60 mb-1">
+            Category
+          </label>
+          <select
+            name="category"
+            value={category}
+            onChange={(e) =>
+              setCategory(e.target.value as "for_sale" | "past_build")
+            }
+            className="w-full max-w-xs border border-navy/20 px-3 py-2 text-navy focus:outline-none focus:border-navy bg-white"
+          >
+            <option value="for_sale">For Sale</option>
+            <option value="past_build">Past Build</option>
+          </select>
+        </div>
+
+        {category === "for_sale" && (
+          <div>
+            <label className="block text-xs uppercase tracking-wide text-navy/60 mb-1">
+              For Sale Section
+            </label>
+            <select
+              name="sale_type"
+              defaultValue={build?.sale_type ?? "turn_key"}
+              className="w-full max-w-xs border border-navy/20 px-3 py-2 text-navy focus:outline-none focus:border-navy bg-white"
+            >
+              <option value="turn_key">Turn-Key</option>
+              <option value="project">Project Trucks</option>
+            </select>
+          </div>
+        )}
       </div>
 
       <div>

@@ -9,43 +9,22 @@ export type NavNode = {
 export const MAIN_NAV: NavNode[] = [
   { label: "Home", href: `${MAIN_SITE}/` },
   {
-    label: "For Sale / Past Builds",
-    href: "https://builds.classiccrewcabs.com",
-  },
-  { label: "Build Levels", href: `${MAIN_SITE}/pages/build-services` },
-  {
     label: "Parts",
     children: [
       {
-        label: "Interior",
-        children: [
-          {
-            label: "Headliners",
-            href: `${MAIN_SITE}/collections/headliners-1`,
-          },
-          {
-            label: "Dakota Digital",
-            href: `${MAIN_SITE}/collections/dakota-digital-guage-sets`,
-          },
-          {
-            label: "Power Window Kit's",
-            href: `${MAIN_SITE}/collections/power-window-kits`,
-          },
-          {
-            label: "Power Locks / Remote Entry",
-            href: `${MAIN_SITE}/collections/power-locks`,
-          },
-        ],
+        label: "1967-1972 Bumpside",
+        href: `${MAIN_SITE}/collections/1967-1972-bumpside`,
       },
       {
-        label: "Exterior",
-        children: [
-          { label: "Emblems", href: `${MAIN_SITE}/collections/emblems` },
-          { label: "Hub Caps", href: `${MAIN_SITE}/collections/hub-caps` },
-          { label: "Body Parts", href: `${MAIN_SITE}/collections/body-parts` },
-        ],
+        label: "1973-1979 Dentside",
+        href: `${MAIN_SITE}/collections/1973-1979-dentside`,
       },
     ],
+  },
+  { label: "Build Levels", href: `${MAIN_SITE}/pages/build-services` },
+  {
+    label: "For Sale / Past Builds",
+    href: "https://builds.classiccrewcabs.com",
   },
   {
     label: "More",

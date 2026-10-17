@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getBuildBySlug, buildImageUrl } from "@/lib/builds";
 import { getCoverImage, getDisplayTitle, getVehicleLine } from "@/lib/build-helpers";
 import { BuildGallery } from "@/components/BuildGallery";
+import { sanitizeDescriptionHtml, stripDescriptionHtml } from "@/lib/description-html";
 
 export const revalidate = 0;
 
@@ -22,7 +23,7 @@ export async function generateMetadata({
   const title = getDisplayTitle(build);
   const vehicleLine = getVehicleLine(build);
   const description =
-    build.description?.trim().slice(0, 160) ||
+    (build.description && stripDescriptionHtml(build.description).slice(0, 160)) ||
     [vehicleLine, build.exterior_color, build.engine]
       .filter(Boolean)
       .join(" — ");
@@ -127,9 +128,12 @@ export default async function BuildPage({ params }: BuildPageParams) {
                 Description <span className="text-red">/</span>
               </h2>
               <div className="h-[2px] bg-navy/10 mt-2 mb-4" />
-              <p className="text-navy/80 leading-relaxed whitespace-pre-line">
-                {build.description}
-              </p>
+              <div
+                className="text-navy/80 leading-relaxed [&_a]:text-red [&_a]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_p+p]:mt-3"
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeDescriptionHtml(build.description),
+                }}
+              />
             </div>
           )}
 

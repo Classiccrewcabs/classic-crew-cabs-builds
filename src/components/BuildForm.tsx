@@ -191,13 +191,17 @@ export function BuildForm({
 
         <div className="mt-4">
           <label className="block text-xs uppercase tracking-wide text-navy/60 mb-1">
-            Description
+            Description{" "}
+            <span className="text-navy/40 normal-case">
+              (HTML tags allowed, e.g. &lt;b&gt;, &lt;i&gt;, &lt;a href=&quot;...&quot;&gt;,
+              &lt;ul&gt;&lt;li&gt;, &lt;p&gt;)
+            </span>
           </label>
           <textarea
             name="description"
-            rows={5}
+            rows={8}
             defaultValue={build?.description ?? ""}
-            className="w-full border border-navy/20 px-3 py-2 text-navy focus:outline-none focus:border-navy"
+            className="w-full border border-navy/20 px-3 py-2 text-navy font-mono text-sm focus:outline-none focus:border-navy"
           />
         </div>
       </div>

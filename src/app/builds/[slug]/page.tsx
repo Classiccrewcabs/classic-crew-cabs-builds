@@ -4,7 +4,12 @@ import { notFound } from "next/navigation";
 import { getBuildBySlug, buildImageUrl } from "@/lib/builds";
 import { getCoverImage, getDisplayTitle, getVehicleLine } from "@/lib/build-helpers";
 import { BuildGallery } from "@/components/BuildGallery";
-import { sanitizeDescriptionHtml, stripDescriptionHtml } from "@/lib/description-html";
+import {
+  sanitizeDescriptionHtml,
+  stripDescriptionHtml,
+  descriptionHasManualCta,
+} from "@/lib/description-html";
+import { CommissionCta } from "@/components/CommissionCta";
 
 export const revalidate = 0;
 
@@ -74,6 +79,10 @@ export default async function BuildPage({ params }: BuildPageParams) {
     { label: "Brakes", value: build.brakes },
     { label: "Creature Comforts", value: build.creature_comforts },
   ].filter((row) => row.value);
+
+  const showCommissionCta =
+    build.category === "past_build" &&
+    !(build.description && descriptionHasManualCta(build.description));
 
   return (
     <div className="px-6 py-10 sm:px-10 lg:px-16">
@@ -158,6 +167,12 @@ export default async function BuildPage({ params }: BuildPageParams) {
                   </div>
                 ))}
               </dl>
+            </div>
+          )}
+
+          {showCommissionCta && (
+            <div className="md:col-span-2">
+              <CommissionCta />
             </div>
           )}
         </div>

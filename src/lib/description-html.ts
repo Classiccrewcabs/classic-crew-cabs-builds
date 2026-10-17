@@ -36,3 +36,9 @@ export function sanitizeDescriptionHtml(html: string): string {
 export function stripDescriptionHtml(html: string): string {
   return sanitizeHtml(html, { allowedTags: [], allowedAttributes: {} }).trim();
 }
+
+const MANUAL_CTA_PHRASE = "commission your build";
+
+export function descriptionHasManualCta(html: string): boolean {
+  return stripDescriptionHtml(html).toLowerCase().includes(MANUAL_CTA_PHRASE);
+}

@@ -2,28 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { makeBuildSlug } from "@/lib/slug";
 import type { BuildCategory, PhotoCategory, SaleType } from "@/lib/types";
 
-const MAX_DIMENSION = 2400;
 const PHOTO_CATEGORIES: PhotoCategory[] = ["exterior", "interior", "detail"];
 
-async function processImage(file: File): Promise<Buffer> {
-  const source = Buffer.from(await file.arrayBuffer());
-
-  return sharp(source)
-    .rotate()
-    .resize({
-      width: MAX_DIMENSION,
-      height: MAX_DIMENSION,
-      fit: "inside",
-      withoutEnlargement: true,
-    })
-    .jpeg({ quality: 82, mozjpeg: true })
-    .toBuffer();
-}
+// Photos are resized in the browser and uploaded directly to the
+// "build-photos" Supabase bucket (see src/lib/upload-photos.ts). The form
+// only sends their storage paths here, e.g. "<folder>/<timestamp>-0-name.jpg".
+const STORAGE_PATH_RE = /^[A-Za-z0-9-]+\/[A-Za-z0-9._-]+\.jpg$/;
 
 function readBuildFields(formData: FormData) {
   return {
@@ -67,30 +55,20 @@ function readBuildFields(formData: FormData) {
   };
 }
 
-async function uploadPhotos(
+async function recordPhotos(
   buildId: string,
-  files: File[],
+  paths: string[],
   startingSortOrder: number,
   photoCategory: PhotoCategory
 ) {
   const supabase = await createClient();
   const inserted: { id: string; sort_order: number }[] = [];
 
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    if (!file || file.size === 0) continue;
-
-    const body = await processImage(file);
-    const safeName =
-      file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_").replace(/\.\w+$/, "") +
-      ".jpg";
-    const path = `${buildId}/${Date.now()}-${i}-${safeName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("build-photos")
-      .upload(path, body, { contentType: "image/jpeg" });
-
-    if (uploadError) throw uploadError;
+  for (let i = 0; i < paths.length; i++) {
+    const path = paths[i];
+    if (!STORAGE_PATH_RE.test(path)) {
+      throw new Error(`Invalid photo path: ${path}`);
+    }
 
     const { data: image, error: insertError } = await supabase
       .from("build_images")
@@ -119,8 +97,11 @@ async function uploadAllCategories(
   const inserted: { id: string; sort_order: number }[] = [];
 
   for (const category of PHOTO_CATEGORIES) {
-    const files = formData.getAll(`photos_${category}`) as File[];
-    const result = await uploadPhotos(buildId, files, sortOrder, category);
+    const paths = formData
+      .getAll(`uploaded_photos_${category}`)
+      .map(String)
+      .filter(Boolean);
+    const result = await recordPhotos(buildId, paths, sortOrder, category);
     sortOrder += result.length;
     inserted.push(...result);
   }

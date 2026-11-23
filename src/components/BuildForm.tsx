@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useFormStatus } from "react-dom";
+import { useState, useTransition } from "react";
 import Image from "next/image";
 import { buildImageUrl } from "@/lib/image-url";
+import { resizeAndUploadPhotos } from "@/lib/upload-photos";
 import type { Build, BuildImage, PhotoCategory } from "@/lib/types";
 
 const PHOTO_CATEGORY_GROUPS: { key: PhotoCategory; label: string }[] = [
@@ -12,16 +12,28 @@ const PHOTO_CATEGORY_GROUPS: { key: PhotoCategory; label: string }[] = [
   { key: "detail", label: "Mechanical" },
 ];
 
-function SubmitButton({ label }: { label: string }) {
-  const { pending } = useFormStatus();
+function SubmitButton({
+  label,
+  progress,
+  pending,
+}: {
+  label: string;
+  progress: string | null;
+  pending: boolean;
+}) {
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="bg-navy text-cream font-semibold uppercase tracking-wide px-6 py-3 hover:bg-navy-light transition-colors disabled:opacity-60"
-    >
-      {pending ? "Saving..." : label}
-    </button>
+    <div className="flex items-center gap-4">
+      <button
+        type="submit"
+        disabled={pending}
+        className="bg-navy text-cream font-semibold uppercase tracking-wide px-6 py-3 hover:bg-navy-light transition-colors disabled:opacity-60"
+      >
+        {pending ? "Saving..." : label}
+      </button>
+      {pending && progress && (
+        <span className="text-sm text-navy/60">{progress}</span>
+      )}
+    </div>
   );
 }
 
@@ -67,9 +79,56 @@ export function BuildForm({
   submitLabel: string;
 }) {
   const [category, setCategory] = useState(build?.category ?? "past_build");
+  const [progress, setProgress] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+
+  // Photos are resized in the browser and uploaded straight to Supabase
+  // Storage, so only text fields and storage paths reach the Render server.
+  async function handleSubmit(formData: FormData) {
+    setUploadError(null);
+    // Existing builds keep photos in their own folder; new builds get a
+    // fresh folder (each image row stores its full path, so this is fine).
+    const folder = build?.id ?? crypto.randomUUID();
+
+    const jobs = PHOTO_CATEGORY_GROUPS.map(({ key }) => ({
+      key,
+      files: (formData.getAll(`photos_${key}`) as File[]).filter(
+        (f) => f && f.size > 0
+      ),
+    }));
+    const total = jobs.reduce((n, j) => n + j.files.length, 0);
+    let done = 0;
+
+    try {
+      for (const { key, files } of jobs) {
+        formData.delete(`photos_${key}`);
+        const paths = await resizeAndUploadPhotos(folder, files, (name) => {
+          done += 1;
+          setProgress(`Uploading photo ${done} of ${total} (${name})...`);
+        });
+        for (const p of paths) formData.append(`uploaded_photos_${key}`, p);
+      }
+    } catch (err) {
+      setProgress(null);
+      setUploadError(err instanceof Error ? err.message : String(err));
+      return;
+    }
+
+    setProgress(total > 0 ? "Saving build..." : null);
+    await action(formData);
+  }
 
   return (
-    <form action={action} className="max-w-3xl space-y-10">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (pending) return;
+        const formData = new FormData(e.currentTarget);
+        startTransition(() => handleSubmit(formData));
+      }}
+      className="max-w-3xl space-y-10"
+    >
       {build && <input type="hidden" name="slug" value={build.slug} />}
 
       <div className="flex flex-wrap gap-6">
@@ -275,7 +334,17 @@ export function BuildForm({
         })}
       </div>
 
-      <SubmitButton label={submitLabel} />
+      {uploadError && (
+        <p className="text-sm text-red border border-red/30 bg-red/5 px-3 py-2">
+          {uploadError} The build was not saved. Please try again.
+        </p>
+      )}
+
+      <SubmitButton
+        label={submitLabel}
+        progress={progress}
+        pending={pending}
+      />
     </form>
   );
 }
